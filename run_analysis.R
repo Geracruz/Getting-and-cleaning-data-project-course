@@ -18,3 +18,18 @@ y_train<-read.table(file = "UCI HAR Dataset/train/y_train.txt", col.names = "act
 
 y_test<-merge(y_test, activity, by = "activitycode")
 y_train<-merge(y_train, activity, by = "activitycode")
+
+test<-cbind(subject_test, x_test, y_test)%>%mutate(type="test")
+train<-cbind(subject_train, x_train, y_train)%>%mutate(type="train")
+
+testxtrain<-rbind(test, train)
+rm(test, train)
+nameswmean<-grep(names(testxtrain), pattern = "[Mm]ean")
+nameswsd<-grep(names(testxtrain), pattern = "[Ss]td")
+
+testxtrain1<-testxtrain%>%select(subject, activity, all_of(nameswmean), all_of(nameswsd))%>%
+  group_by(activity, subject)%>%
+  summarise_all(mean)%>%
+  view()
+
+
